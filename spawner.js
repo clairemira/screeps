@@ -1,13 +1,5 @@
 const roles = require('roles')
 
-function clearUnusedCreepsFromMemory() {
-    for (const creepName in Memory.creeps) {
-        if (!Game.creeps[creepName]) {
-            delete Memory.creeps[creepName];
-        }
-    }
-}
-
 function nextIdForRole(roleName) {
     if (!Memory.ids) {
         Memory.ids = {};
@@ -19,8 +11,6 @@ function nextIdForRole(roleName) {
 }
 
 function run() {
-    clearUnusedCreepsFromMemory();
-        
     for (const spawnName in Game.spawns) {
         const spawn = Game.spawns[spawnName];
 
