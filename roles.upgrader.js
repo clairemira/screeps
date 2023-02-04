@@ -1,5 +1,3 @@
-const utility = require('utility');
-
 function upgrader(creep) {
     const needToUpgrade = creep.memory.harvesting && creep.store.getFreeCapacity() === 0;
     const needToHarvest = !creep.memory.harvesting && creep.store.getUsedCapacity(RESOURCE_ENERGY) === 0;
@@ -14,7 +12,7 @@ function upgrader(creep) {
 
     if (creep.memory.harvesting || needToHarvest) {
         creep.memory.harvesting = true;
-        utility.harvestClosestEnergySource(creep);
+        creep.harvestClosestEnergySource();
     }
 }
 

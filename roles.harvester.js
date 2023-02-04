@@ -1,5 +1,3 @@
-const utility = require('utility');
-
 // In order of priority
 const structureTypes = [
     STRUCTURE_SPAWN,
@@ -9,10 +7,10 @@ const structureTypes = [
 
 function harvester(creep) {
     if (creep.store.getFreeCapacity() > 0) {
-        utility.harvestClosestEnergySource(creep);
+        creep.harvestClosestEnergySource();
     }
     else {
-        utility.transferResources(creep, RESOURCE_ENERGY, structureTypes);
+        creep.transferResources(RESOURCE_ENERGY, structureTypes);
     }
 }
 

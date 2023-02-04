@@ -1,3 +1,5 @@
+require('creep');
+
 const utility = require('utility');
 const spawner = require('spawner');
 const worker = require('worker');
