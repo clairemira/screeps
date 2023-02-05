@@ -5,7 +5,7 @@
  */
 function randomNumberInRange(min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min);
-  }
+}
 
 /**
  * Clears undefined creeps from `Memory`. This occurs when memory has been
@@ -20,16 +20,22 @@ function clearUndefinedCreepsFromMemory() {
 }
 
 /**
- * Returns `true` if the structure is a `StructureSpawn`.
- * @param {Structure} structure The structure to perform the check on
- * @returns `true` if this structure type is equivalent to the `STRUCTURE_SPAWN` constant
+ * Gets a new ID that should be freely available to use for the given key. Increments on each call.
+ * @param {string} key A unique key that defines what the ID is for, e.g. 'harvesters'
  */
-function isSpawnStructure(structure) {
-    return structure.structureType === STRUCTURE_SPAWN;
+function getIncrementingId(key) {
+    if (!Memory.ids) {
+        Memory.ids = {};
+    }
+
+    const id = Memory.ids[key] ? Memory.ids[key] + 1 : 1;
+    Memory.ids[key] = id;
+
+    return id;
 }
 
 module.exports = {
     clearUndefinedCreepsFromMemory,
-    isSpawnStructure,
+    getIncrementingId,
     randomNumberInRange,
-}
+};

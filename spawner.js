@@ -1,26 +1,19 @@
-const roles = require('roles')
+const constants = require('constants');
+const utility = require('utility');
+const roles = require('roles');
 
-function nextIdForRole(roleName) {
-    if (!Memory.ids) {
-        Memory.ids = {};
-    }
-
-    const id = Memory.ids[roleName] ? Memory.ids[roleName] + 1 : 1;
-    Memory.ids[roleName] = id;
-    return id;
-}
-
-function run() {
+function spawner() {
     for (const spawnName in Game.spawns) {
         const spawn = Game.spawns[spawnName];
 
         if (spawn.spawning) {
+            spawn.room.visual.text(`Spawning ${spawn.spawning.name}`, spawn.pos.x, spawn.pos.y + 2, constants.DEFAULT_TEXT_STYLE);
             continue;
         }
 
         for (const roleName in roles) {
             const roleInfo = roles[roleName];
-            const creepsForRole = _.filter(Game.creeps, (creep) => creep.memory.roleName === roleName);
+            const creepsForRole = _.filter(Game.creeps, (creep) => creep.my && creep.memory.roleName === roleName);
             const energyCost = roleInfo.bodyParts.reduce((c, p) => c + BODYPART_COST[p], 0);
 
             if (creepsForRole.length < roleInfo.minSpawns) {
@@ -29,7 +22,7 @@ function run() {
                     break;
                 }
 
-                const id = nextIdForRole(roleName);
+                const id = utility.getIncrementingId(roleName);
                 const name = `${roleName}_${id}`;
                 spawn.spawnCreep(roleInfo.bodyParts, name, { memory: { roleName } });
                 break;
@@ -38,4 +31,4 @@ function run() {
     }
 }
 
-module.exports = { run }
+module.exports = { run: spawner };

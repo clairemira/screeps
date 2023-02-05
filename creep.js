@@ -1,64 +1,48 @@
 const constants = require('constants');
 const utility = require('utility');
 
-/*
-
 /**
- * Commands the creep to move to a random position near the closest spawn structure.
+ * Commands the creep to move near the closest spawn structure.
  * Call this when there is nothing else for the creep to do.
  * @param {number} distance The number of tiles away from the spawn. Defaults to `3`.
  */
 Creep.prototype.moveNearClosestSpawn = function (distance = 3) {
-    const spawns = this.room.find(FIND_STRUCTURES, { filter: utility.isSpawnStructure });
-    const spawnsByRange = _.sortBy(spawns, s => this.pos.getRangeTo(s));
+    const closestSpawn = this.pos.findClosestByRange(FIND_MY_SPAWNS);
     
-    if (spawnsByRange.length > 0) {
-        const closestSpawn = spawnsByRange[0];
-
-        if (!this.pos.inRangeTo(closestSpawn, distance)) {
-            this.moveTo(closestSpawn);
-        }
+    if (closestSpawn && !this.pos.inRangeTo(closestSpawn, distance)) {
+        this.moveTo(closestSpawn);
     }
 }
 
 /**
- * Checks if the target position is accessible by the creep. If any tile surrounding
- * the target contains an obstruction then this function will return false.
+ * Checks if the target position is accessible by the creep. If all tiles surrounding
+ * the target contain obstructions then this function will return false.
  * @param {RoomPosition} pos The room position to check if accessible
  */
 Creep.prototype.isRoomPositionAccessible = function (pos) {
     const start = { x: pos.x - 1, y: pos.y - 1 };
     const size = 3;
-    const areaObjects = this.room.lookAtArea(pos.y - 1, pos.x - 1, pos.y + 1, pos.x + 1);
-    let surroundingObstructions = 0;
 
     for (let y = start.y; y < start.y + size; y++) {
         for (let x = start.x; x < start.x + size; x++) {
-            const objects = areaObjects[y][x];
+            const roomPos = this.room.getPositionAt(x, y);
 
-            // Skip this pos if no objects detected or if we're looking at the target position
-            if (!objects || (x === pos.x && y === pos.y)) {
+            // Skip this pos if it's not valid or we're looking at the target position
+            if (!roomPos || x === pos.x && y === pos.y) {
                 continue;
             }
 
-            // Objects that the creep can't pass through
-            const obstructions = _.filter(objects, (obj) => {
-                const isOtherCreep = obj.type === constants.CREEP && (this.pos.x !== obj.creep.pos.x || this.pos.y !== obj.creep.pos.y);
-                const isWall = obj.type === constants.TERRAIN && obj.terrain === constants.WALL;
-            
-                return isOtherCreep || isWall;
-            });
-
-            surroundingObstructions += obstructions.length > 0 ? 1 : 0;
+            if (!roomPos.isObstructed({ ignoreCreep: this })) {
+                return true;
+            }
         }
     }
 
-    return surroundingObstructions < size * size - 1;
+    return false;
 }
 
 /**
  * Commands the creep to harvest the closest active energy source.
- * @param {Creep} creep The creep that should perform the harvest
  */
 Creep.prototype.harvestClosestEnergySource = function () {
     const activeEnergySources = this.room.find(FIND_SOURCES_ACTIVE);
@@ -74,7 +58,7 @@ Creep.prototype.harvestClosestEnergySource = function () {
                 const harvestRes = this.harvest(source);
 
                 if (harvestRes === OK && utility.randomNumberInRange(1, 10) === 1) {
-                    this.say('*slurp*');
+                    this.say('*slurp*', true);
                 }
 
                 if (harvestRes === ERR_NOT_IN_RANGE) {
@@ -91,7 +75,8 @@ Creep.prototype.harvestClosestEnergySource = function () {
  * Commands the creep to transfer a resource to a structure using a prioritised list of structure types.
  * If the first structure type is not found then it will attempt to transfer to the next one in the list.
  * @param {string} resourceType One of the `RESOURCE_*` constants
- * @param {string[]} structureTypes An array of `RESOURCE_*` constants in order of priority
+ * @param {string[]} structureTypes An array of `STRUCTURE_*` constants in order of priority
+ * @returns {boolean} `true` if a successful action occurred, otherwise returns `false`
  */
 Creep.prototype.transferResources = function (resourceType, structureTypes) {
     const structures = this.room.find(FIND_STRUCTURES, {
@@ -110,9 +95,30 @@ Creep.prototype.transferResources = function (resourceType, structureTypes) {
                 this.moveTo(structure);
             }
             
-            return;
+            return true;
         }
     }
 
-    this.moveNearClosestSpawn();
+    return false;
+}
+
+/**
+ * Commands the creep to build a construction site.
+ * @returns {boolean} `true` if an action was made towards a construction
+ * site, otherwise `false` if no construction site was found
+ */
+Creep.prototype.buildConstructionSite = function () {
+    const constructionSites = this.room.find(FIND_CONSTRUCTION_SITES);
+
+    if (constructionSites.length > 0) {
+        const constructionSite = constructionSites[0];
+
+        if (this.build(constructionSite) === ERR_NOT_IN_RANGE) {
+            this.moveTo(constructionSite, constants.VISUALIZE_PATH_STYLE);
+        }
+
+        return true;
+    }
+
+    return false;
 }
