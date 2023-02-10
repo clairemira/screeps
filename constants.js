@@ -13,6 +13,9 @@ module.exports = {
         STRUCTURE_EXTENSION,
         STRUCTURE_TOWER,
     ],
+    ROOM_SIZE: 50,
+    /** How many tile spaces to move when creating extensions using the createExtensionSpiral method */
+    EXTENSION_SPIRAL_SPACING: 2,
     TERRAIN: 'terrain',
     VISUALIZE_PATH_STYLE: {
         fill: 'transparent',

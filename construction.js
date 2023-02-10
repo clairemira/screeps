@@ -1,7 +1,19 @@
 const filters = require('filters');
 
 /**
- * Creates an extension in the room if conditions are met
+ * If an enemy creep enters the room then activate safe mode on the room controller immediately.
+ * @param {Room} room The room that should be assessed
+ */
+function activateSafeModeIfNecessary(room) {
+    const enemyCreeps = room.find(FIND_HOSTILE_CREEPS);
+
+    if (enemyCreeps.length > 0 && room.controller.safeModeAvailable) {
+        room.controller.activateSafeMode();
+    }
+}
+
+/**
+ * Creates an extension in the room if conditions are met.
  * @param {Room} room The `Room` object to create the extensions in
  */
 function createExtensions(room) {
@@ -16,19 +28,18 @@ function createExtensions(room) {
     const totalAllowedForLevel = CONTROLLER_STRUCTURES.extension[room.controller.level];
 
     if (totalExtensions < totalAllowedForLevel) {
-        room.createExtensionNearSpawn();
+        console.log(room.createExtensionSpiral());
     }
 }
 
 /**
- * Create construction sites for each room
+ * Creates construction sites and performs other room-related tasks for each room we have access to.
  */
 function construction() {
     for (const roomName in Game.rooms) {
         const room = Game.rooms[roomName];
 
-        
-        room.controller.activateSafeMode(); // Will only work for the first room
+        activateSafeModeIfNecessary(room);
         createExtensions(room);
     }
 }
