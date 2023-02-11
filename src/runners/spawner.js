@@ -1,6 +1,6 @@
 const constants = require('constants');
 const utility = require('utility');
-const roles = require('roles');
+const roles = require('roles.roles');
 
 function spawner() {
     for (const spawnName in Game.spawns) {

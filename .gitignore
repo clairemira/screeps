@@ -1,3 +1,5 @@
 # This is a copy paste of the constants defined by the Screeps API
 # I wanted a local copy for easy lookup without committing it
 screeps.constants.js
+
+dist/

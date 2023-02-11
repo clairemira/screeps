@@ -1,0 +1,12 @@
+{
+    "emeraldwalk.runonsave": {
+        "shell": "bash",
+        "commands": [
+            {
+                "isAsync": true,
+                "match": "\\.js$",
+                "cmd": "./build.sh"
+            },
+        ]
+    }
+}
